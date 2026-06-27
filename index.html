@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>STL提出確認 v36</title>
+  <title>STL提出確認 v52 CDN版</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#d9dee8;
@@ -18,7 +18,16 @@
     header h1{margin:0;font-size:22px;letter-spacing:.02em;display:inline-flex;align-items:baseline;gap:10px;flex-wrap:wrap}
     header p{margin:0;opacity:.92;font-size:14px;line-height:1.6}
     .dateRange{font-size:12px;font-weight:700;opacity:.9;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:3px 8px;white-space:nowrap}
-    .versionBadge{position:absolute;right:14px;top:12px;font-size:12px;font-weight:800;letter-spacing:.02em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 9px;color:#fff}
+    .versionBadge{position:absolute;right:14px;top:12px;font-size:12px;font-weight:800;letter-spacing:.02em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 9px;color:#fff;cursor:pointer}
+    .aboutOverlay{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.42);display:none;align-items:center;justify-content:center;padding:22px}
+    .aboutOverlay.show{display:flex}
+    .aboutBox{width:min(720px,94vw);background:#fff;color:#1d2433;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.28);border:1px solid #d9dee8;overflow:hidden}
+    .aboutHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#1d4ed8,#0f766e);color:#fff}
+    .aboutHead h2{margin:0;font-size:18px}
+    .aboutClose{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;color:#fff;padding:5px 10px;font-weight:800;cursor:pointer}
+    .aboutBody{padding:18px 22px;font-size:15px;line-height:1.9}
+    .aboutBody p{margin:0 0 14px}
+    .aboutBody .aboutSignature{text-align:right;margin-top:18px;margin-bottom:0;font-weight:700}
     body.dragOver::after{content:'ZIPファイルをここにドロップ';position:fixed;inset:12px;z-index:9999;display:flex;align-items:center;justify-content:center;border:4px dashed #2563eb;border-radius:24px;background:rgba(238,244,255,.92);color:#1849a9;font-size:30px;font-weight:900;pointer-events:none}
     main{max-width:1440px;margin:0 auto;padding:10px 14px}
     .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px 12px;margin-bottom:10px}
@@ -145,7 +154,7 @@
     @media(max-width:860px){.controls{grid-template-columns:1fr 1fr}.controls .wide{grid-column:1/-1}.filesCell{min-width:260px}.thumbGrid{grid-template-columns:1fr}}
     @page{size:A3 portrait;margin:8mm}
     @media print{
-      header, main > section:not(.printView), .workspace, .summary, .controlsPanel, .printToolbar{display:none!important}
+      header, main > section:not(.printView), .workspace, .summary, .controlsPanel, .printToolbar, #printStatus{display:none!important}
       body{background:#fff}
       main{max-width:none;padding:0}
       .printView{display:block!important}
@@ -158,9 +167,24 @@
 <header>
   <div class="headerRow">
     <h1>STL提出確認 <span id="dateRange" class="dateRange" style="display:none;"></span></h1>
-    <span id="versionBadge" class="versionBadge">v36</span>
+    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v52 CDN版</button>
   </div>
 </header>
+
+  <div id="aboutOverlay" class="aboutOverlay" aria-hidden="true">
+    <div class="aboutBox" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+      <div class="aboutHead">
+        <h2 id="aboutTitle">STL提出確認について</h2>
+        <button id="aboutClose" class="aboutClose" type="button">閉じる</button>
+      </div>
+      <div class="aboutBody">
+        <p>このSTL提出確認は、48mmガチャポンFITで生徒がサイズ調整を行い、決められたルールで保存したファイル名をもとに、クラスごとの一覧を作成し、その立体を確認できるようにしたものです。</p>
+        <p>共有フォルダで集めた48mmガチャポンFITのSTLファイルを、提出されたフォルダーごとZIPファイルとしてダウンロードしてください。そのZIPファイルをこのSTL提出確認にドラッグ＆ドロップ、あるいは「ZIP選択」で読み込むと、STLを一覧で確認できます。（共有フォルダ内のフォルダについても、ZIPファイルに含まれていれば表示できます。）</p>
+        <p>STLの表示のために外部ライブラリを使用していますが、ZIPファイルで読み込んだSTLファイルの情報は、このアプリが動くブラウザ上で処理されます。生徒の個人情報がネット上に送信されることはありません。</p>
+        <p class="aboutSignature">2026/06/　川俣　純</p>
+      </div>
+    </div>
+  </div>
 <main>
   <section class="panel controlsPanel">
     <div class="controls">
@@ -316,6 +340,24 @@ function showThreeLoadError(container, err){
 const folderInput = document.getElementById('folderInput');
 const dateRange = document.getElementById('dateRange');
 const versionBadge = document.getElementById('versionBadge');
+
+const aboutOverlay = document.getElementById('aboutOverlay');
+const aboutClose = document.getElementById('aboutClose');
+if(versionBadge && aboutOverlay){
+  versionBadge.addEventListener('click', () => {
+    aboutOverlay.classList.add('show');
+    aboutOverlay.setAttribute('aria-hidden','false');
+  });
+}
+function closeAbout(){
+  if(!aboutOverlay) return;
+  aboutOverlay.classList.remove('show');
+  aboutOverlay.setAttribute('aria-hidden','true');
+}
+if(aboutClose) aboutClose.addEventListener('click', closeAbout);
+if(aboutOverlay) aboutOverlay.addEventListener('click', e => { if(e.target === aboutOverlay) closeAbout(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAbout(); });
+
 const folderName = document.getElementById('folderName');
 const workspace = document.getElementById('workspace');
 const modeChoicePanel = document.getElementById('modeChoicePanel');
@@ -374,8 +416,8 @@ const thumbnailPageSize = 12;
 gradeSelect.add(new Option('学年選択', '', true, true));
 classSelect.add(new Option('クラス選択', '', true, true));
 for(let i=1;i<=9;i++) gradeSelect.add(new Option(`${i}年`, String(i)));
-for(let i=1;i<=10;i++) classSelect.add(new Option(`${i}組`, String(i)));
-for(let i=1;i<=40;i++) maxNoSelect.add(new Option(`${i}番まで`, String(i)));
+for(let i=1;i<=9;i++) classSelect.add(new Option(`${i}組`, String(i)));
+[10,20,30,40,50,60,70,80,99].forEach(n => maxNoSelect.add(new Option(`${n}番まで`, String(n))));
 maxNoSelect.value = '40';
 
 buildBtn.addEventListener('click', buildClassList);
@@ -858,7 +900,8 @@ async function buildUnparsedThumbnailPrintView(){
     await waitFrame();
   }
   printStatus.className = 'status ok';
-  printStatus.textContent = '読み取れなかったSTLのサムネイル一覧ができました。「印刷する」を押して印刷してください。';
+  printStatus.textContent = '';
+  printStatus.style.display = 'none';
 }
 
 async function showPrintSingleUnparsedThumb(rec, index){
@@ -1300,7 +1343,8 @@ async function buildThumbnailListView(){
     await waitFrame();
   }
   printStatus.className = 'status ok';
-  printStatus.textContent = 'サムネイル一覧ができました。「印刷する」を押して印刷してください。';
+  printStatus.textContent = '';
+  printStatus.style.display = 'none';
 }
 
 
@@ -1498,16 +1542,18 @@ function parseFile(file){
   const code = parts[0].match(/^(\d+)$/)?.[1];
   if(!code || code.length < 3) return null;
   const grade = Number(code[0]);
-  let rest = code.slice(1);
   let klass, no;
-  if(rest.startsWith('10')){
-    klass = 10;
-    no = Number(rest.slice(2));
+
+  // ファイル名先頭コードの読み取り
+  // 1〜9組: 1501 = 1年5組1番、1109 = 1年1組9番、1110 = 1年1組10番
+  // 10組は存在しない前提のため、5桁コードは対象外として扱う。
+  if(code.length === 4){
+    klass = Number(code[1]);
+    no = Number(code.slice(2));
   }else{
-    klass = Number(rest[0]);
-    no = Number(rest.slice(1));
+    return null;
   }
-  if(!(grade>=1 && grade<=9 && klass>=1 && klass<=10 && no>=1 && no<=40)) return null;
+  if(!(grade>=1 && grade<=9 && klass>=1 && klass<=9 && no>=1 && no<=99)) return null;
 
   let datePart = parts[1] || '';
   let timePart = parts[2] || '';
