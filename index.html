@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>STL提出確認 v34</title>
+  <title>STL提出確認 v36</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#d9dee8;
@@ -158,7 +158,7 @@
 <header>
   <div class="headerRow">
     <h1>STL提出確認 <span id="dateRange" class="dateRange" style="display:none;"></span></h1>
-    <span id="versionBadge" class="versionBadge">v34</span>
+    <span id="versionBadge" class="versionBadge">v36</span>
   </div>
 </header>
 <main>
@@ -184,7 +184,7 @@
         <label for="maxNoSelect">番号</label>
         <select id="maxNoSelect"></select>
       </div>
-      <button id="buildBtn">リスト作成</button>
+      <button id="buildBtn" title="自動生成されない場合に押してください">再作成</button>
     </div>
   </section>
 
@@ -193,7 +193,7 @@
       <div class="summaryGroup">
         <span class="toolbarLabel">集計</span>
         <div class="summary" id="summary">
-          <span class="badge gray">ZIPを選んで「リスト作成」を押してください</span>
+          <span class="badge gray">ZIPを選び、学年とクラスを選択してください</span>
         </div>
       </div>
       <div class="modeChoice modeGroup" id="modeChoicePanel">
@@ -371,12 +371,17 @@ let activePrintViewer = null;
 let currentThumbnailPage = 0;
 const thumbnailPageSize = 12;
 
+gradeSelect.add(new Option('学年選択', '', true, true));
+classSelect.add(new Option('クラス選択', '', true, true));
 for(let i=1;i<=9;i++) gradeSelect.add(new Option(`${i}年`, String(i)));
 for(let i=1;i<=10;i++) classSelect.add(new Option(`${i}組`, String(i)));
 for(let i=1;i<=40;i++) maxNoSelect.add(new Option(`${i}番まで`, String(i)));
 maxNoSelect.value = '40';
 
 buildBtn.addEventListener('click', buildClassList);
+gradeSelect.addEventListener('change', autoBuildIfReady);
+classSelect.addEventListener('change', autoBuildIfReady);
+maxNoSelect.addEventListener('change', autoBuildIfReady);
 folderInput.addEventListener('change', handleZipInputChange);
 setupZipDrop();
 showNormalBtn.addEventListener('click', showNormalView);
@@ -405,6 +410,21 @@ function resetOutputViews(){
   setModeButtonState('');
 }
 
+function isClassSelectionReady(){
+  return !!(selectedZipFile && gradeSelect.value && classSelect.value);
+}
+
+async function autoBuildIfReady(){
+  if(!selectedZipFile) return;
+  if(!gradeSelect.value || !classSelect.value){
+    resetOutputViews();
+    clearViewer(true);
+    summary.innerHTML = '<span class="badge gray">学年とクラスを選択してください</span>';
+    return;
+  }
+  await buildClassList();
+}
+
 
 function handleZipInputChange(){
   selectedZipFile = folderInput.files && folderInput.files[0] ? folderInput.files[0] : null;
@@ -413,7 +433,7 @@ function handleZipInputChange(){
   zipLatestDate = null;
   zipEarliestDate = null;
   updateHeaderDateRange([]);
-  prepareFolderSummary();
+  prepareFolderSummary().then(autoBuildIfReady);
 }
 
 function setupZipDrop(){
@@ -446,7 +466,7 @@ function setupZipDrop(){
     zipEarliestDate = null;
     updateHeaderDateRange([]);
     folderName.textContent = `ドロップ：${zip.name}`;
-    prepareFolderSummary();
+    prepareFolderSummary().then(autoBuildIfReady);
   });
 }
 
@@ -506,9 +526,15 @@ function showNormalView(){
 async function buildClassList(){
   resetOutputViews();
   const files = await getSelectedStlFiles();
+  if(!gradeSelect.value || !classSelect.value){
+    resetOutputViews();
+    clearViewer(true);
+    summary.innerHTML = '<span class="badge gray">学年とクラスを選択してください</span>';
+    return;
+  }
   const grade = Number(gradeSelect.value);
   const klass = Number(classSelect.value);
-  const maxNo = Number(maxNoSelect.value);
+  const maxNo = Number(maxNoSelect.value || '40');
 
   clearViewer(true);
   if(!files.length){
