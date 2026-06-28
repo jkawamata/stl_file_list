@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>STL提出確認 v52 CDN版</title>
+  <title>STL提出確認 v57 CDN版</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#d9dee8;
@@ -64,6 +64,9 @@
     .badgeButton.blue{background:var(--accent2);color:#1849a9;border-color:#c7d7fe}
     .badgeButton:hover{filter:brightness(.97)}
     .workspace{display:grid;grid-template-columns:minmax(400px,0.95fr) minmax(440px,1.25fr);gap:10px;align-items:start}
+    .workspace.starOnlyLayout{grid-template-columns:1fr}
+    .workspace.starOnlyLayout .listPanel{display:none!important}
+    .workspace.starOnlyLayout .viewerWrap{position:static;width:100%}
     .listPanel{padding-bottom:10px}
     .listHeader,.viewerHeader{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
     .listHeader h2,.viewerTitle h2{margin:0;font-size:18px}
@@ -96,6 +99,19 @@
     .thumbInfo{padding:8px 10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
     .thumbInfo strong{font-size:14px}.thumbInfo span{font-size:12px;color:var(--muted)}
     .openLink{font-size:12px;text-decoration:none;color:#1d4ed8;font-weight:800;border:1px solid #c7d7fe;border-radius:999px;padding:5px 9px;background:#fff;white-space:nowrap}
+
+    .actionGroup{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+    .starBtn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:999px;border:1px solid #fedf89;background:#fffaeb;color:#b54708;font-size:18px;font-weight:900;line-height:1;padding:0;box-shadow:none}
+    .starBtn.starred{background:#fef3c7;color:#92400e;border-color:#f59e0b}
+    .starBtn:hover{filter:brightness(.96)}
+    .saveBtn{display:inline-flex;align-items:center;justify-content:center;font-size:12px;text-decoration:none;color:#1d4ed8;font-weight:800;border:1px solid #c7d7fe;border-radius:999px;padding:5px 9px;background:#fff;white-space:nowrap}
+    .largeInfoRow,.printInfoRow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .largeInfoText,.printInfoText{min-width:240px;flex:1 1 auto}
+    .titleWithActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .titleWithActions .titleText{display:inline-block}
+    .titleWithActions .actionGroup{vertical-align:middle}
+    .printSingleTitle.titleWithActions{display:flex}
+    .badgeButton.starBadge{background:#fffaeb;color:#b54708;border-color:#fedf89}
     .largeView{display:none;margin:8px auto 0;border:1px solid var(--line);border-radius:14px;background:radial-gradient(circle at 50% 40%,#ffffff,#eef2f7);overflow:hidden;aspect-ratio:1/1;max-width:min(100%, 720px);width:min(100%, 720px);min-height:0}
     .viewerPanel.singleMode .largeView{width:min(100%, 76vh, 760px);max-width:min(100%, 76vh, 760px)}
     .largeView canvas{display:block;width:100%;height:100%}
@@ -122,6 +138,9 @@
     .printThumb{width:35mm;border:1px solid #ccc;border-radius:3px;overflow:hidden;background:#f8fafc;break-inside:avoid}
     .printThumb img{width:100%;aspect-ratio:1/1;height:auto;object-fit:contain;display:block;background:radial-gradient(circle at 50% 40%,#fff,#eef2f7)}
     .printThumb div{font-size:7pt;text-align:center;border-top:1px solid #ddd;padding:1mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .printThumbFooter{display:flex!important;align-items:center;justify-content:space-between;gap:2px;border-top:1px solid #ddd;padding:1mm;background:#fff}
+    .printThumbFooter .printThumbLabel{border-top:0!important;padding:0!important;flex:1 1 auto;text-align:left;font-size:7pt;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .printThumbFooter .starBtn{width:24px;height:24px;font-size:15px;flex:0 0 auto}
     .printEmpty{font-size:9pt;color:#999}
     .printThumb{cursor:zoom-in}
     .printSingleView{display:none;background:#fff;border:1px solid #ddd;border-radius:10px;padding:12px;margin:0 auto 14px;max-width:410mm}
@@ -154,7 +173,7 @@
     @media(max-width:860px){.controls{grid-template-columns:1fr 1fr}.controls .wide{grid-column:1/-1}.filesCell{min-width:260px}.thumbGrid{grid-template-columns:1fr}}
     @page{size:A3 portrait;margin:8mm}
     @media print{
-      header, main > section:not(.printView), .workspace, .summary, .controlsPanel, .printToolbar, #printStatus{display:none!important}
+      header, main > section:not(.printView), .workspace, .summary, .controlsPanel, .printToolbar, #printStatus, .actionGroup, .starBtn, .saveBtn{display:none!important}
       body{background:#fff}
       main{max-width:none;padding:0}
       .printView{display:block!important}
@@ -167,7 +186,7 @@
 <header>
   <div class="headerRow">
     <h1>STL提出確認 <span id="dateRange" class="dateRange" style="display:none;"></span></h1>
-    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v52 CDN版</button>
+    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v57 CDN版</button>
   </div>
 </header>
 
@@ -412,6 +431,7 @@ let zipLoadSerial = 0;
 let activePrintViewer = null;
 let currentThumbnailPage = 0;
 const thumbnailPageSize = 12;
+let starredKeys = new Set();
 
 gradeSelect.add(new Option('学年選択', '', true, true));
 classSelect.add(new Option('クラス選択', '', true, true));
@@ -442,6 +462,11 @@ function showViewerCloseButton(show){
   if(clearViewerBtn) clearViewerBtn.style.display = show ? 'inline-flex' : 'none';
 }
 
+function setStarOnlyLayout(on){
+  if(!workspace) return;
+  workspace.classList.toggle('starOnlyLayout', !!on);
+}
+
 function resetOutputViews(){
   document.body.classList.remove('thumbnail-list-mode');
   printView.style.display = 'none';
@@ -450,6 +475,7 @@ function resetOutputViews(){
   workspace.style.display = 'none';
   modeChoicePanel.style.display = 'none';
   setModeButtonState('');
+  setStarOnlyLayout(false);
 }
 
 function isClassSelectionReady(){
@@ -475,6 +501,7 @@ function handleZipInputChange(){
   zipLatestDate = null;
   zipEarliestDate = null;
   updateHeaderDateRange([]);
+  resetStarredSTLs();
   prepareFolderSummary().then(autoBuildIfReady);
 }
 
@@ -507,6 +534,7 @@ function setupZipDrop(){
     zipLatestDate = null;
     zipEarliestDate = null;
     updateHeaderDateRange([]);
+    resetStarredSTLs();
     folderName.textContent = `ドロップ：${zip.name}`;
     prepareFolderSummary().then(autoBuildIfReady);
   });
@@ -555,6 +583,7 @@ function formatDateRangeShort(d){
 
 function showNormalView(){
   if(!currentClassMeta) return;
+  setStarOnlyLayout(false);
   setModeButtonState('individual');
   document.body.classList.remove('thumbnail-list-mode');
   disposePrintViewer();
@@ -605,6 +634,7 @@ async function buildClassList(){
     <button class="badgeButton green" id="submittersBtn" type="button">提出者 ${submitted}人</button>
     <button class="badgeButton green" id="classStlBtn" type="button">STL ${totalFiles}個</button>
     <button class="badgeButton gray" id="displayRangeBtn" type="button">表示 ${maxNo}番まで</button>
+    <button class="badgeButton starBadge" id="starredBtn" type="button">★付き ${starredKeys.size}個</button>
     ${unparsedRecords.length ? `<button class="badgeButton" id="unparsedBtn" type="button">読み取れなかったSTL ${unparsedRecords.length}個</button><button class="badgeButton printMini" id="unparsedPrintBtn" type="button">未解析STL印刷</button>` : ''}
   `;
   attachSummaryButtons();
@@ -633,6 +663,7 @@ async function prepareFolderSummary(){
     <button class="badgeButton blue" id="allFolderStlBtn" type="button">${virtualFolderName || 'ZIP内STL'}</button>
     <button class="badgeButton gray" id="allFolderStlBtn2" type="button">STL ${files.length}個</button>
     <button class="badgeButton green" id="allParsedBtn" type="button">読み取れたSTL ${allRecords.length}個</button>
+    <button class="badgeButton starBadge" id="starredBtn" type="button">★付き ${starredKeys.size}個</button>
     ${unparsedRecords.length ? `<button class="badgeButton" id="unparsedBtn" type="button">読み取れなかったSTL ${unparsedRecords.length}個</button><button class="badgeButton printMini" id="unparsedPrintBtn" type="button">未解析STL印刷</button>` : '<span class="badge green">読み取れなかったSTL 0個</span>'}
   `;
   attachSummaryButtons();
@@ -717,6 +748,139 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
+
+function getRecordKey(rec){
+  const file = rec && rec.file ? rec.file : rec;
+  if(!file) return '';
+  return [file.zipPath || file.name || '', file.size || 0, file.lastModified || 0].join('::');
+}
+
+function resetStarredSTLs(){
+  starredKeys = new Set();
+  updateStarredBadge();
+}
+
+function isStarred(rec){
+  return starredKeys.has(getRecordKey(rec));
+}
+
+function updateStarredBadge(){
+  document.querySelectorAll('#starredBtn').forEach(btn => {
+    btn.textContent = `★付き ${starredKeys.size}個`;
+    btn.title = starredKeys.size ? '★を付けたSTLだけをクラスをこえて一覧表示します' : 'まだ★を付けたSTLはありません';
+  });
+}
+
+function updateStarButtonsForKey(key){
+  document.querySelectorAll(`.starBtn[data-key="${CSS.escape(key)}"]`).forEach(btn => {
+    const on = starredKeys.has(key);
+    btn.textContent = on ? '★' : '☆';
+    btn.classList.toggle('starred', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on ? '★を外す' : 'このSTLに★を付ける';
+  });
+}
+
+function toggleStarred(rec){
+  const key = getRecordKey(rec);
+  if(!key) return;
+  if(starredKeys.has(key)) starredKeys.delete(key);
+  else starredKeys.add(key);
+  updateStarButtonsForKey(key);
+  updateStarredBadge();
+}
+
+function createStarButton(rec){
+  const key = getRecordKey(rec);
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'starBtn';
+  btn.dataset.key = key;
+  btn.textContent = starredKeys.has(key) ? '★' : '☆';
+  btn.classList.toggle('starred', starredKeys.has(key));
+  btn.setAttribute('aria-label', 'このSTLに星印を付ける');
+  btn.setAttribute('aria-pressed', starredKeys.has(key) ? 'true' : 'false');
+  btn.title = starredKeys.has(key) ? '★を外す' : 'このSTLに★を付ける';
+  btn.addEventListener('click', ev => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    toggleStarred(rec);
+  });
+  return btn;
+}
+
+function createSaveLink(rec, text='STL保存'){
+  const a = document.createElement('a');
+  a.className = 'saveBtn openLink';
+  a.href = URL.createObjectURL(rec.file);
+  activeUrls.push(a.href);
+  a.download = rec.file.name;
+  a.title = `${rec.file.name} を保存`;
+  a.textContent = text;
+  a.addEventListener('click', ev => ev.stopPropagation());
+  return a;
+}
+
+function setInfoWithActions(container, rec, text, infoClass='largeInfoText'){
+  container.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = infoClass === 'printInfoText' ? 'printInfoRow' : 'largeInfoRow';
+  const span = document.createElement('span');
+  span.className = infoClass;
+  span.textContent = text;
+  const actions = document.createElement('span');
+  actions.className = 'actionGroup';
+  actions.append(createStarButton(rec), createSaveLink(rec));
+  row.append(span, actions);
+  container.appendChild(row);
+}
+
+function setInfoTextOnly(container, text, infoClass='largeInfoText'){
+  container.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = infoClass === 'printInfoText' ? 'printInfoRow' : 'largeInfoRow';
+  const span = document.createElement('span');
+  span.className = infoClass;
+  span.textContent = text;
+  row.append(span);
+  container.appendChild(row);
+}
+
+function setTitleWithActions(el, title, rec){
+  el.innerHTML = '';
+  el.classList.add('titleWithActions');
+  const text = document.createElement('span');
+  text.className = 'titleText';
+  text.textContent = title;
+  const actions = document.createElement('span');
+  actions.className = 'actionGroup';
+  actions.append(createStarButton(rec), createSaveLink(rec));
+  el.append(text, actions);
+}
+
+function clearTitleActions(el, title){
+  el.classList.remove('titleWithActions');
+  el.textContent = title;
+}
+
+function getStarredRecords(){
+  const map = new Map();
+  for(const rec of allRecords){
+    const key = getRecordKey(rec);
+    if(starredKeys.has(key)) map.set(key, {...rec, label:`${rec.grade}年${rec.klass}組${rec.no}番 ${rec.name || ''}`});
+  }
+  for(const rec of unparsedRecords){
+    const key = getRecordKey(rec);
+    if(starredKeys.has(key) && !map.has(key)) map.set(key, {...rec, label:`未解析 ${rec.file.name}`});
+  }
+  return [...map.values()].sort((a,b) => (a.grade||99)-(b.grade||99) || (a.klass||99)-(b.klass||99) || (a.no||999)-(b.no||999) || a.timeValue-b.timeValue || a.file.name.localeCompare(b.file.name,'ja'));
+}
+
+function showStarredSTLs(){
+  const records = getStarredRecords();
+  showRecordThumbnailList(records, '★付きSTL 一覧', records.length ? `${records.length}個の★付きSTLをクラスをこえて表示しています。ZIPファイルを読み直すと★はリセットされます。` : '★を付けたSTLはありません。', 'starred');
+}
+
 function attachSummaryButtons(){
   const classAllBtn = document.getElementById('classAllBtn');
   const submittersBtn = document.getElementById('submittersBtn');
@@ -727,6 +891,7 @@ function attachSummaryButtons(){
   const allParsedBtn = document.getElementById('allParsedBtn');
   const unparsedBtn = document.getElementById('unparsedBtn');
   const unparsedPrintBtn = document.getElementById('unparsedPrintBtn');
+  const starredBtn = document.getElementById('starredBtn');
 
   if(classAllBtn) classAllBtn.addEventListener('click', () => showClassRecordsFromBadge('クラス全体のSTL'));
   if(submittersBtn) submittersBtn.addEventListener('click', () => showClassRecordsFromBadge('提出者のSTL'));
@@ -737,6 +902,8 @@ function attachSummaryButtons(){
   if(allParsedBtn) allParsedBtn.addEventListener('click', showAllParsedSTLs);
   if(unparsedBtn) unparsedBtn.addEventListener('click', showUnparsedSTLs);
   if(unparsedPrintBtn) unparsedPrintBtn.addEventListener('click', buildUnparsedThumbnailPrintView);
+  if(starredBtn) starredBtn.addEventListener('click', showStarredSTLs);
+  updateStarredBadge();
 }
 
 function getCurrentClassThumbnailRecords(){
@@ -910,7 +1077,7 @@ async function showPrintSingleUnparsedThumb(rec, index){
   printSingleView.style.display = 'block';
   printSingleCanvas.innerHTML = '';
   printSingleTitle.textContent = `読み取れなかったSTL ${index+1}`;
-  printSingleInfo.textContent = `${formatLongDate(rec)}　${rec.file.name}　ドラッグで回転、ホイールで拡大縮小できます。`;
+  setInfoWithActions(printSingleInfo, rec, `${formatLongDate(rec)}　${rec.file.name}　ドラッグで回転、ホイールで拡大縮小できます。`, 'printInfoText');
   try{
     activePrintViewer = renderInteractiveSTL(rec.file, printSingleCanvas);
   }catch(e){
@@ -921,7 +1088,8 @@ async function showPrintSingleUnparsedThumb(rec, index){
 
 function showRecordThumbnailList(records, title, subText, mode='recordList'){
   // 集計バッジから開くサムネイルは、印刷用の「サムネイル一覧」ではなく、
-  // 個別表示と同じ左右分割画面の右側ビューアに表示する。
+  // 個別表示と同じ右側ビューアに表示する。★付き一覧では左のクラス一覧を隠して全幅表示にする。
+  setStarOnlyLayout(mode === 'starred');
   document.body.classList.remove('thumbnail-list-mode');
   if(printView) printView.style.display = 'none';
   if(printSingleView) printSingleView.style.display = 'none';
@@ -1003,6 +1171,7 @@ function renderThumbPager(totalPages, total, start, count){
 }
 
 function showSingleFromList(grade, klass, no, records, rec, index){
+  setStarOnlyLayout(false);
   currentStudentRecords = records;
   currentStudentMeta = {grade, klass, no, name: pickName(records)};
   setActiveNumber(no);
@@ -1010,6 +1179,7 @@ function showSingleFromList(grade, klass, no, records, rec, index){
 }
 
 function showStudent(grade, klass, no, records){
+  setStarOnlyLayout(false);
   currentStudentRecords = records;
   currentStudentMeta = {grade, klass, no, name: pickName(records)};
   clearViewer(false);
@@ -1049,14 +1219,10 @@ function createThumbCard(rec, index){
   info.className = 'thumbInfo';
   const left = document.createElement('div');
   left.innerHTML = `<strong>${escapeHtml(rec.label || `${index+1}回目`)}</strong><br><span>${formatLongDate(rec)}</span>`;
-  const open = document.createElement('a');
-  open.className = 'openLink';
-  open.href = URL.createObjectURL(rec.file);
-  activeUrls.push(open.href);
-  open.textContent = 'STL保存';
-  open.title = rec.file.name;
-  open.download = rec.file.name;
-  info.append(left, open);
+  const actions = document.createElement('span');
+  actions.className = 'actionGroup';
+  actions.append(createStarButton(rec), createSaveLink(rec));
+  info.append(left, actions);
   card.append(canvasWrap, info);
   card.title = 'ダブルクリックすると、このSTLだけを大きく表示します。ドラッグでは回転します。';
   card.addEventListener('dblclick', (ev) => { if(ev.target.closest('a')) return; showLargeSTL(rec, index); });
@@ -1187,13 +1353,13 @@ function showLargeSTL(rec, index){
   viewerStatus.textContent = '拡大表示中です。ドラッグで回転、ホイールで拡大縮小できます。';
   const meta = currentStudentMeta || {};
   if(meta.mode === 'unparsed' || meta.mode === 'recordList'){
-    viewerTitle.textContent = `${meta.title || 'STL'} 拡大表示`;
+    setTitleWithActions(viewerTitle, `${meta.title || 'STL'} 拡大表示`, rec);
     viewerSub.textContent = '一覧に戻る場合は、サムネイルを閉じて再度選択してください。';
-    largeViewInfo.textContent = `${rec.label || rec.file.name}　${formatLongDate(rec)}`;
+    setInfoTextOnly(largeViewInfo, `${rec.label || rec.file.name}　${formatLongDate(rec)}`);
   }else{
-    viewerTitle.textContent = `${meta.grade || ''}年${meta.klass || ''}組 ${meta.no || ''}番 ${meta.name || ''} STL拡大表示`;
+    setTitleWithActions(viewerTitle, `${meta.grade || ''}年${meta.klass || ''}組 ${meta.no || ''}番 ${meta.name || ''} STL拡大表示`, rec);
     viewerSub.textContent = '番号クリックで一覧表示に戻せます。';
-    largeViewInfo.textContent = `${index+1}回目　${formatLongDate(rec)}`;
+    setInfoTextOnly(largeViewInfo, `${index+1}回目　${formatLongDate(rec)}`);
   }
   renderSTL(rec.file, largeView, 0, true);
 }
@@ -1261,7 +1427,7 @@ function clearViewer(resetSelection=true){
   viewerStatus.textContent = '読み込み待ちです。';
   viewerPlaceholder.style.display = 'flex';
   viewerPlaceholder.innerHTML = '左側のクラス提出リストから番号をクリックしてください。<br>ここに、その生徒が保存したSTLを時系列で並べて表示します。';
-  viewerTitle.textContent = 'STLサムネイル';
+  clearTitleActions(viewerTitle, 'STLサムネイル');
   viewerSub.textContent = '左側の番号をクリックすると、ここにその生徒のSTLが時間順に表示されます。';
   viewerBody.scrollTop = 0;
   document.getElementById('viewerPanel').classList.remove('singleMode');
@@ -1275,6 +1441,7 @@ function clearViewer(resetSelection=true){
 
 
 async function buildThumbnailListView(){
+  setStarOnlyLayout(false);
   setModeButtonState('thumbnail');
   showViewerCloseButton(false);
   workspace.style.display = 'none';
@@ -1325,7 +1492,14 @@ async function buildThumbnailListView(){
         box.className = 'printThumb';
         box.title = 'クリックすると、このSTLだけを大きく表示します';
         box.addEventListener('click', () => showPrintSingleThumb(rec, i, no, name));
-        box.innerHTML = `<div style="height:25mm;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#777;">作成中</div><div>${i+1}回目 ${formatShortDate(rec)}</div>`;
+        box.innerHTML = `<div style="height:25mm;display:flex;align-items:center;justify-content:center;font-size:7pt;color:#777;">作成中</div>`;
+        const footer = document.createElement('div');
+        footer.className = 'printThumbFooter';
+        const label = document.createElement('span');
+        label.className = 'printThumbLabel';
+        label.textContent = `${i+1}回目 ${formatShortDate(rec)}`;
+        footer.append(label, createStarButton(rec));
+        box.appendChild(footer);
         thumbs.appendChild(box);
         try{
           const imgUrl = await renderSTLStillImage(rec.file, 360, 360);
@@ -1354,8 +1528,8 @@ async function showPrintSingleThumb(rec, index, no, name){
   printSingleView.style.display = 'block';
   printSingleCanvas.innerHTML = '';
   const {grade, klass} = currentClassMeta || {};
-  printSingleTitle.textContent = `${grade || ''}年${klass || ''}組 ${no}番 ${name || ''} ${index+1}回目`;
-  printSingleInfo.textContent = `${formatLongDate(rec)}　${rec.file.name}　ドラッグで回転、ホイールで拡大縮小できます。`;
+  setTitleWithActions(printSingleTitle, `${grade || ''}年${klass || ''}組 ${no}番 ${name || ''} ${index+1}回目`, rec);
+  setInfoTextOnly(printSingleInfo, `${formatLongDate(rec)}　${rec.file.name}　ドラッグで回転、ホイールで拡大縮小できます。`, 'printInfoText');
   try{
     activePrintViewer = renderInteractiveSTL(rec.file, printSingleCanvas);
   }catch(e){
