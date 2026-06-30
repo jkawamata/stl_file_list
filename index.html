@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>STL提出確認 v57 CDN版</title>
+  <title>STL提出確認 v58 CDN版</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#d9dee8;
@@ -186,7 +186,7 @@
 <header>
   <div class="headerRow">
     <h1>STL提出確認 <span id="dateRange" class="dateRange" style="display:none;"></span></h1>
-    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v57 CDN版</button>
+    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v58 CDN版</button>
   </div>
 </header>
 
@@ -451,7 +451,47 @@ showThumbnailModeBtn.addEventListener('click', buildThumbnailListView);
 clearViewerBtn.addEventListener('click', () => clearViewer(true));
 if(backThumbsBtn) backThumbsBtn.addEventListener('click', returnToThumbnails);
 if(thumbnailListBtn) thumbnailListBtn.addEventListener('click', buildThumbnailListView);
-printNowBtn.addEventListener('click', () => window.print());
+printNowBtn.addEventListener('click', () => {
+  preparePrintPdfTitle();
+  window.print();
+});
+window.addEventListener('beforeprint', preparePrintPdfTitle);
+window.addEventListener('afterprint', restoreAppTitle);
+function getCurrentClassLatestDate(){
+  let latest = null;
+  if(currentClassRows && currentClassRows.size){
+    currentClassRows.forEach(records => {
+      (records || []).forEach(r => {
+        const t = Number(r.timeValue || (r.date instanceof Date ? r.date.getTime() : 0));
+        if(t && (!latest || t > latest.getTime())) latest = new Date(t);
+      });
+    });
+  }
+  return latest || new Date();
+}
+function formatPdfDatePart(date){
+  const d = date instanceof Date && !isNaN(date) ? date : new Date();
+  return `${d.getFullYear()}_${pad(d.getMonth()+1)}_${pad(d.getDate())}時点`;
+}
+function formatPointDateText(date){
+  const d = date instanceof Date && !isNaN(date) ? date : new Date();
+  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}時点`;
+}
+function getPrintPdfTitle(){
+  if(currentClassMeta){
+    const {grade, klass} = currentClassMeta;
+    return `${grade}年${klass}組_${formatPdfDatePart(getCurrentClassLatestDate())}`;
+  }
+  return `STL提出確認_${formatPdfDatePart(new Date())}`;
+}
+function preparePrintPdfTitle(){
+  if(document.body.classList.contains('thumbnail-list-mode')){
+    document.title = getPrintPdfTitle();
+  }
+}
+function restoreAppTitle(){
+  document.title = 'STL提出確認 v58 CDN版';
+}
 backPrintListBtn.addEventListener('click', returnToPrintThumbnailList);
 
 function setModeButtonState(mode){
@@ -1469,7 +1509,8 @@ async function buildThumbnailListView(){
 
   const page = document.createElement('section');
   page.className = 'printPage';
-  page.innerHTML = `<div class="printTitle"><h1>${grade}年${klass}組 サムネイル一覧</h1><p>${new Date().toLocaleString('ja-JP')} 作成</p></div><div class="printRows"></div>`;
+  const classLatestDate = getCurrentClassLatestDate();
+  page.innerHTML = `<div class="printTitle"><h1>${grade}年${klass}組 サムネイル一覧</h1><p>${formatPointDateText(classLatestDate)}</p></div><div class="printRows"></div>`;
   const rowsWrap = page.querySelector('.printRows');
   printPages.appendChild(page);
 
