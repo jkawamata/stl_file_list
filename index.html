@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>STL提出確認 v58 CDN版</title>
+  <title>STL提出確認 v71 CDN版</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --ink:#1d2433; --muted:#667085; --line:#d9dee8;
@@ -28,6 +28,19 @@
     .aboutBody{padding:18px 22px;font-size:15px;line-height:1.9}
     .aboutBody p{margin:0 0 14px}
     .aboutBody .aboutSignature{text-align:right;margin-top:18px;margin-bottom:0;font-weight:700}
+
+    .consentOverlay{position:fixed;inset:0;z-index:10001;background:rgba(15,23,42,.46);display:none;align-items:center;justify-content:center;padding:18px}
+    .consentOverlay.show{display:flex}
+    .consentBox{width:min(860px,96vw);max-height:92vh;overflow:auto;background:#fff;color:#1d2433;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.28);border:1px solid #d9dee8}
+    .consentHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#1d4ed8,#0f766e);color:#fff;position:sticky;top:0;z-index:2}
+    .consentHead h2{margin:0;font-size:18px}.consentHead p{margin:2px 0 0;font-size:12px;opacity:.9}
+    .consentClose{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;color:#fff;padding:5px 10px;font-weight:800;cursor:pointer}
+    .consentBody{padding:16px 18px}.consentGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+    .consentBody input,.consentBody textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+    .consentBody textarea{min-height:72px;resize:vertical;line-height:1.7}.consentWide{grid-column:1/-1}
+    .consentActions{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding:12px 18px;background:#f8fafc;position:sticky;bottom:0}
+    .consentNote{font-size:12px;color:#667085;line-height:1.6;margin-right:auto}.consentBtn{background:#7c3aed!important}
+    .badgeButton.consentBadge{background:#f5f3ff;color:#5b21b6;border-color:#ddd6fe}
     body.dragOver::after{content:'ZIPファイルをここにドロップ';position:fixed;inset:12px;z-index:9999;display:flex;align-items:center;justify-content:center;border:4px dashed #2563eb;border-radius:24px;background:rgba(238,244,255,.92);color:#1849a9;font-size:30px;font-weight:900;pointer-events:none}
     main{max-width:1440px;margin:0 auto;padding:10px 14px}
     .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px 12px;margin-bottom:10px}
@@ -186,7 +199,7 @@
 <header>
   <div class="headerRow">
     <h1>STL提出確認 <span id="dateRange" class="dateRange" style="display:none;"></span></h1>
-    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v58 CDN版</button>
+    <button id="versionBadge" class="versionBadge" type="button" title="このアプリについて">v71 CDN版</button>
   </div>
 </header>
 
@@ -204,6 +217,66 @@
       </div>
     </div>
   </div>
+
+  <div id="consentOverlay" class="consentOverlay" aria-hidden="true">
+    <div class="consentBox" role="dialog" aria-modal="true" aria-labelledby="consentTitle">
+      <div class="consentHead">
+        <div>
+          <h2 id="consentTitle">ネット掲載・複製許諾願いの作成</h2>
+          <p id="consentCountText">★付きSTLからWord文書またはPDFを作成します。</p>
+        </div>
+        <button id="consentClose" class="consentClose" type="button">閉じる</button>
+      </div>
+      <div class="consentBody">
+        <div class="consentGrid">
+          <div>
+            <label for="consentIssueDate">発行日</label>
+            <input id="consentIssueDate" type="date">
+          </div>
+          <div>
+            <label for="consentDeadline">提出期限</label>
+            <input id="consentDeadline" type="date">
+          </div>
+          <div>
+            <label for="consentSubject">教科</label>
+            <input id="consentSubject" type="text" value="技術科">
+          </div>
+          <div>
+            <label for="consentSchool">学校名</label>
+            <input id="consentSchool" type="text" value="〇〇中学校">
+          </div>
+          <div>
+            <label for="consentTeacher">発行者</label>
+            <input id="consentTeacher" type="text" value="〇〇〇〇">
+          </div>
+          <div>
+            <label for="consentDocTitle">文書タイトル</label>
+            <input id="consentDocTitle" type="text" value="STLデータのネット上への掲載・複製の許諾のお願い">
+          </div>
+          <div class="consentWide">
+            <label for="consentBody1">本文</label>
+            <textarea id="consentBody1">本年度の技術科授業で作成した立体（STLデータ）について、名前を削除した形でネット上への掲載と配布および今後学習に取り組む後輩たちのために複製することを許諾していただきたく、この文章を発行しました。ネット掲載および複製にあたっては個人名を削除します。</textarea>
+          </div>
+          <div class="consentWide">
+            <label for="consentBody2">許諾依頼文</label>
+            <textarea id="consentBody2">以下に掲載するサムネイルの立体（STLデータ）について、許諾をお願いする次第です。
+「はい」か「いいえ」に◯をつけ、生徒名、保護者名を署名の上、提出をお願いします。</textarea>
+          </div>
+          <div class="consentWide">
+            <label for="consentPermissionText">許諾確認文</label>
+            <textarea id="consentPermissionText">氏名情報を削除した上記STLファイルのネット上への掲載および、複製を許諾します。</textarea>
+          </div>
+        </div>
+      </div>
+      <div class="consentActions">
+        <span id="consentStatus" class="consentNote">★付きSTLを確認してから作成します。ZIPを読み直すと★はリセットされます。</span>
+        <button id="consentCancel" class="ghost" type="button">キャンセル</button>
+        <button id="consentGeneratePdf" class="consentBtn secondaryConsent" type="button">PDF作成</button>
+        <button id="consentGenerate" class="consentBtn" type="button">Word文書を作成</button>
+      </div>
+    </div>
+  </div>
+
 <main>
   <section class="panel controlsPanel">
     <div class="controls">
@@ -411,6 +484,13 @@ const largeView = document.getElementById('largeView');
 const largeViewInfo = document.getElementById('largeViewInfo');
 const backThumbsBtn = document.getElementById('backThumbsBtn');
 const clearViewerBtn = document.getElementById('clearViewerBtn');
+const consentOverlay = document.getElementById('consentOverlay');
+const consentClose = document.getElementById('consentClose');
+const consentCancel = document.getElementById('consentCancel');
+const consentGenerate = document.getElementById('consentGenerate');
+const consentGeneratePdf = document.getElementById('consentGeneratePdf');
+const consentStatus = document.getElementById('consentStatus');
+const consentCountText = document.getElementById('consentCountText');
 
 let allRecords = [];
 let unparsedRecords = [];
@@ -490,9 +570,14 @@ function preparePrintPdfTitle(){
   }
 }
 function restoreAppTitle(){
-  document.title = 'STL提出確認 v58 CDN版';
+  document.title = 'STL提出確認 v71 CDN版';
 }
 backPrintListBtn.addEventListener('click', returnToPrintThumbnailList);
+if(consentClose) consentClose.addEventListener('click', closeConsentDialog);
+if(consentCancel) consentCancel.addEventListener('click', closeConsentDialog);
+if(consentOverlay) consentOverlay.addEventListener('click', e => { if(e.target === consentOverlay) closeConsentDialog(); });
+if(consentGenerate) consentGenerate.addEventListener('click', generateConsentDocxFromDialog);
+if(consentGeneratePdf) consentGeneratePdf.addEventListener('click', generateConsentPdfFromDialog);
 
 function setModeButtonState(mode){
   if(showNormalBtn) showNormalBtn.classList.toggle('activeMode', mode === 'individual');
@@ -675,6 +760,7 @@ async function buildClassList(){
     <button class="badgeButton green" id="classStlBtn" type="button">STL ${totalFiles}個</button>
     <button class="badgeButton gray" id="displayRangeBtn" type="button">表示 ${maxNo}番まで</button>
     <button class="badgeButton starBadge" id="starredBtn" type="button">★付き ${starredKeys.size}個</button>
+    <button class="badgeButton consentBadge" id="consentDocBtn" type="button">許諾願い発行</button>
     ${unparsedRecords.length ? `<button class="badgeButton" id="unparsedBtn" type="button">読み取れなかったSTL ${unparsedRecords.length}個</button><button class="badgeButton printMini" id="unparsedPrintBtn" type="button">未解析STL印刷</button>` : ''}
   `;
   attachSummaryButtons();
@@ -704,6 +790,7 @@ async function prepareFolderSummary(){
     <button class="badgeButton gray" id="allFolderStlBtn2" type="button">STL ${files.length}個</button>
     <button class="badgeButton green" id="allParsedBtn" type="button">読み取れたSTL ${allRecords.length}個</button>
     <button class="badgeButton starBadge" id="starredBtn" type="button">★付き ${starredKeys.size}個</button>
+    <button class="badgeButton consentBadge" id="consentDocBtn" type="button">許諾願い発行</button>
     ${unparsedRecords.length ? `<button class="badgeButton" id="unparsedBtn" type="button">読み取れなかったSTL ${unparsedRecords.length}個</button><button class="badgeButton printMini" id="unparsedPrintBtn" type="button">未解析STL印刷</button>` : '<span class="badge green">読み取れなかったSTL 0個</span>'}
   `;
   attachSummaryButtons();
@@ -921,6 +1008,344 @@ function showStarredSTLs(){
   showRecordThumbnailList(records, '★付きSTL 一覧', records.length ? `${records.length}個の★付きSTLをクラスをこえて表示しています。ZIPファイルを読み直すと★はリセットされます。` : '★を付けたSTLはありません。', 'starred');
 }
 
+
+function toDateInputValue(date){
+  const d = date instanceof Date && !isNaN(date) ? date : new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function addDays(date, days){
+  const d = date instanceof Date && !isNaN(date) ? new Date(date) : new Date();
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function formatReiwaDate(date){
+  const d = date instanceof Date && !isNaN(date) ? date : new Date();
+  const y = d.getFullYear();
+  const r = y - 2018;
+  const eraYear = r === 1 ? '元' : String(r);
+  return `令和${eraYear}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function formatJapaneseDate(date){
+  const d = date instanceof Date && !isNaN(date) ? date : new Date();
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+
+function openConsentDialog(){
+  const records = getStarredRecords().filter(r => r.grade && r.klass && r.no);
+  if(!starredKeys.size){
+    alert('★を付けたSTLがありません。許諾願いを発行したいSTLに★を付けてください。');
+    return;
+  }
+  if(!records.length){
+    alert('★付きSTLのうち、学年・組・番号・氏名を読み取れるものがありません。ファイル名の形式を確認してください。');
+    return;
+  }
+  const today = new Date();
+  const issue = document.getElementById('consentIssueDate');
+  const deadline = document.getElementById('consentDeadline');
+  if(issue && !issue.value) issue.value = toDateInputValue(today);
+  if(deadline && !deadline.value) deadline.value = toDateInputValue(addDays(today, 7));
+  if(consentCountText) consentCountText.textContent = `${records.length}件の★付きSTLからWord文書またはPDFを作成します。複数ある場合は、1つのWordファイル内に複数ページで出力します。`;
+  if(consentStatus) consentStatus.textContent = '内容を確認し、必要に応じて文面や提出期限を変更してから作成してください。';
+  consentOverlay.classList.add('show');
+  consentOverlay.setAttribute('aria-hidden','false');
+}
+
+function closeConsentDialog(){
+  if(!consentOverlay) return;
+  consentOverlay.classList.remove('show');
+  consentOverlay.setAttribute('aria-hidden','true');
+}
+function getConsentSettings(){
+  const byId = id => document.getElementById(id);
+  const issueDate = byId('consentIssueDate')?.value ? new Date(byId('consentIssueDate').value + 'T00:00:00') : new Date();
+  const deadline = byId('consentDeadline')?.value ? new Date(byId('consentDeadline').value + 'T00:00:00') : addDays(new Date(), 7);
+  return {
+    issueDate,
+    deadline,
+    school: (byId('consentSchool')?.value || '〇〇中学校').trim(),
+    subject: (byId('consentSubject')?.value || '技術科').trim(),
+    teacher: (byId('consentTeacher')?.value || '〇〇〇〇').trim(),
+    title: (byId('consentDocTitle')?.value || 'STLデータのネット上への掲載・複製の許諾のお願い').trim(),
+    body1: normalizeConsentText(byId('consentBody1')?.value || '').trim(),
+    body2: normalizeConsentText(byId('consentBody2')?.value || '').trim(),
+    permissionText: normalizeConsentText(byId('consentPermissionText')?.value || '').trim()
+  };
+}
+
+async function generateConsentDocxFromDialog(){
+  const records = getStarredRecords().filter(r => r.grade && r.klass && r.no);
+  if(!records.length){
+    alert('発行できる★付きSTLがありません。');
+    return;
+  }
+  const settings = getConsentSettings();
+  if(consentGenerate) consentGenerate.disabled = true;
+  if(consentGeneratePdf) consentGeneratePdf.disabled = true;
+  if(consentStatus) consentStatus.textContent = `Word文書を作成しています。0/${records.length}`;
+  try{
+    const blob = await buildConsentDocx(records, settings, progress => {
+      if(consentStatus) consentStatus.textContent = `Word文書を作成しています。${progress}/${records.length}`;
+    });
+    const fileName = `ネット掲載・複製許諾願い_${toDateInputValue(settings.issueDate).replaceAll('-','')}.docx`;
+    downloadBlob(blob, fileName);
+    if(consentStatus) consentStatus.textContent = `作成しました：${fileName}`;
+  }catch(e){
+    console.error(e);
+    alert('Word文書の作成中にエラーが発生しました。' + (e && e.message ? '\n' + e.message : ''));
+    if(consentStatus) consentStatus.textContent = '作成に失敗しました。';
+  }finally{
+    if(consentGenerate) consentGenerate.disabled = false;
+    if(consentGeneratePdf) consentGeneratePdf.disabled = false;
+  }
+}
+
+
+async function generateConsentPdfFromDialog(){
+  const records = getStarredRecords().filter(r => r.grade && r.klass && r.no);
+  if(!records.length){
+    alert('発行できる★付きSTLがありません。');
+    return;
+  }
+  const settings = getConsentSettings();
+  if(consentGenerate) consentGenerate.disabled = true;
+  if(consentGeneratePdf) consentGeneratePdf.disabled = true;
+  if(consentStatus) consentStatus.textContent = `PDFを作成しています。0/${records.length}`;
+  try{
+    const pages = [];
+    for(let i=0;i<records.length;i++){
+      const rec = records[i];
+      const dataUrl = await renderSTLStillImage(rec.file, 720, 540);
+      pages.push(makeConsentPdfPageHtml(rec, settings, dataUrl));
+      if(consentStatus) consentStatus.textContent = `PDFを作成しています。${i+1}/${records.length}`;
+      await waitFrame();
+      await new Promise(resolve => setTimeout(resolve, 40));
+    }
+    const title = `ネット掲載・複製許諾願い_${toDateInputValue(settings.issueDate).replaceAll('-','')}`;
+    const printHtml = buildConsentPdfHtml(pages, title);
+    const win = window.open('', '_blank');
+    if(!win){
+      alert('PDF作成用の画面を開けませんでした。ポップアップブロックを解除してください。');
+      if(consentStatus) consentStatus.textContent = 'PDF作成用画面を開けませんでした。';
+      return;
+    }
+    win.document.open();
+    win.document.write(printHtml);
+    win.document.close();
+    if(consentStatus) consentStatus.textContent = 'PDF作成画面を開きました。保存先で「PDFとして保存」を選んでください。';
+  }catch(e){
+    console.error(e);
+    alert('PDF作成中にエラーが発生しました。' + (e && e.message ? '\n' + e.message : ''));
+    if(consentStatus) consentStatus.textContent = 'PDF作成に失敗しました。';
+  }finally{
+    if(consentGenerate) consentGenerate.disabled = false;
+    if(consentGeneratePdf) consentGeneratePdf.disabled = false;
+  }
+}
+function pdfEscape(str){
+  return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function pdfTextWithBreaks(str){
+  return pdfEscape(str).replace(/\n/g, '<br>');
+}
+function makeConsentPdfPageHtml(rec, settings, imageDataUrl){
+  const meta = `${rec.file.name}`;
+  const body2 = applyConsentTemplate(settings.body2, settings);
+  return `
+  <section class="consentPage">
+    <div class="dateLine">${pdfEscape(formatReiwaDate(settings.issueDate))}</div>
+    <div class="recipient">${pdfEscape(`${rec.grade}年${rec.klass}組${rec.no}番　${rec.name || '氏名'}　様`)}</div>
+    <div class="recipient guardian">　　　　　　　　保護者　様</div>
+    <div class="spacer2"></div>
+    <h1>${pdfEscape(settings.title)}</h1>
+    <div class="issuer">${pdfEscape(`${settings.school}${settings.subject}　${settings.teacher}`)}</div>
+    <p class="indent">${pdfTextWithBreaks(settings.body1)}</p>
+    <p class="indent">${pdfTextWithBreaks(body2)}</p>
+    <div class="thumbGap"></div>
+    <div class="thumbWrap"><img src="${imageDataUrl}" alt="STLサムネイル"></div>
+    <div class="meta">${pdfEscape(meta)}</div>
+    <div class="permissionGap"></div>
+    <p class="permission">${pdfTextWithBreaks(settings.permissionText)}</p>
+    <div class="choices"><div>はい</div><div>いいえ</div></div>
+    <div class="spacer2"></div>
+    <div class="signature">生徒氏名（署名）　　：＿＿＿＿＿＿＿＿＿＿＿＿＿</div>
+    <div class="signatureGap"></div>
+    <div class="signature">保護者氏名（署名）　：＿＿＿＿＿＿＿＿＿＿＿＿＿</div>
+    <div class="deadline">お手数ですが、${pdfEscape(formatJapaneseDate(settings.deadline))}までに提出をお願いします。</div>
+  </section>`;
+}
+function buildConsentPdfHtml(pages, title){
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>${pdfEscape(title)}</title>
+  <style>
+    @page{size:A4 portrait;margin:18mm;}
+    body{margin:0;background:#eee;font-family:"Yu Gothic","YuGothic","Meiryo",Arial,sans-serif;color:#111;}
+    .consentPage{box-sizing:border-box;width:210mm;min-height:297mm;margin:0 auto 12px;background:#fff;padding:18mm;page-break-after:always;font-size:11.5pt;line-height:1.55;}
+    .consentPage:last-child{page-break-after:auto;}
+    .dateLine{text-align:right;margin-bottom:8px;}
+    .recipient{margin:2px 0 0 0;}
+    .guardian{margin-top:8px;}
+    .spacer2{height:18px;}
+    h1{text-align:center;font-size:16pt;line-height:1.3;margin:10px 0 6px;font-weight:700;}
+    .issuer{text-align:right;margin:0 0 12px;}
+    p{margin:0 0 5px;}
+    .indent{text-indent:1em;}
+    .thumbGap{height:1.3em;}
+    .thumbWrap{text-align:center;margin:0 0 4px;}
+    .thumbWrap img{width:82mm;height:61mm;object-fit:contain;display:inline-block;}
+    .meta{text-align:center;font-size:9pt;margin:2px 0 10px;}
+    .permissionGap{height:1.3em;}
+    .permission{text-align:center;text-indent:0;margin:0 0 14px;font-size:11pt;white-space:nowrap;}
+    .choices{display:flex;justify-content:center;gap:40mm;margin:1.6em 0 18px;font-size:12pt;}
+    .signature{text-align:right;margin:6px 0;}
+    .signatureGap{height:1.3em;}
+    .deadline{text-align:center;margin-top:16px;}
+    @media print{body{background:#fff}.consentPage{margin:0;padding:0;min-height:auto;width:auto;}}
+  </style></head><body>${pages.join('\n')}<script>window.onload=function(){document.title=${JSON.stringify(title)};setTimeout(function(){window.print();},400);};<\/script></body></html>`;
+}
+
+function downloadBlob(blob, fileName){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 30000);
+}
+
+function xmlEscape(str){
+  return String(str ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&apos;','"':'&quot;'}[c]));
+}
+function normalizeConsentText(str){
+  return String(str ?? '').replace(/\\n/g, '\n');
+}
+function applyConsentTemplate(text, settings){
+  const issuer = `${settings.school}${settings.subject}　${settings.teacher}`;
+  return normalizeConsentText(text).replaceAll('{提出先}', issuer);
+}
+function docxSafeText(str){
+  return xmlEscape(str).replace(/\n/g, '</w:t><w:br/><w:t>');
+}
+function wFonts(){ return '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Yu Gothic" w:cs="Arial"/>'; }
+function wRun(text, opt={}){
+  const size = opt.size || 21;
+  const bold = opt.bold ? '<w:b/><w:bCs/>' : '';
+  const underline = opt.underline ? '<w:u w:val="single"/>' : '';
+  return `<w:r><w:rPr>${wFonts()}${bold}${underline}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/></w:rPr><w:t xml:space="preserve">${docxSafeText(text)}</w:t></w:r>`;
+}
+function wParaRuns(runs=[], opt={}){
+  const align = opt.align ? `<w:jc w:val="${opt.align}"/>` : '';
+  const before = opt.before != null ? opt.before : 0;
+  const after = opt.after != null ? opt.after : 120;
+  const spacing = `<w:spacing w:before="${before}" w:after="${after}" w:line="276" w:lineRule="auto"/>`;
+  const indent = opt.firstLine ? `<w:ind w:firstLine="${opt.firstLine}"/>` : '';
+  const pageBreakBefore = opt.pageBreakBefore ? '<w:pageBreakBefore/>' : '';
+  return `<w:p><w:pPr>${pageBreakBefore}${align}${spacing}${indent}</w:pPr>${runs.map(r=>wRun(r.text, r)).join('')}</w:p>`;
+}
+function wPara(text='', opt={}){ return wParaRuns([{text, ...opt}], opt); }
+function wBlank(){ return wPara('', {after:80}); }
+function wRecipientBlock(line1){
+  // 氏名の長さに関わらず、宛名の直後に全角スペース1文字を置いて「様」を付ける。
+  const student = String(line1 || '').replace(/[\s　]*様$/,'').trim();
+  return wPara(`${student}　様`, {align:'left', size:21, after:40}) +
+         wPara('　　　　　　　　保護者　様', {align:'left', size:21, after:40});
+}
+function wRequestPara(settings){
+  return wPara('「はい」か「いいえ」に◯をつけ、生徒名、保護者名を署名の上、提出をお願いします。', {size:21, after:120});
+}
+function wDivider(){ return ''; }
+function wChoiceTable(){
+  // 見本に合わせ、はい／いいえを横に並べて中央配置する。
+  return `<w:tbl><w:tblPr><w:tblW w:w="3600" w:type="dxa"/><w:jc w:val="center"/><w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="1800"/><w:gridCol w:w="1800"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="1800" w:type="dxa"/></w:tcPr>${wPara('はい',{align:'center',size:23,after:180})}</w:tc><w:tc><w:tcPr><w:tcW w:w="1800" w:type="dxa"/></w:tcPr>${wPara('いいえ',{align:'center',size:23,after:180})}</w:tc></w:tr></w:tbl>`;
+}
+
+function wPermissionPara(text){
+  // 本文と同じ文字サイズで中央配置する。
+  return wPara(text, {align:'center', size:21, after:180});
+}
+function wSignaturePara(label){
+  return wParaRuns([{text:label, size:21},{text:'＿＿＿＿＿＿＿＿＿＿＿＿＿', size:21}], {align:'right', after:80});
+}
+function imageDrawing(rid, cx, cy, name){
+  return `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="120" w:after="80"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${rid.replace('rId','')}" name="${xmlEscape(name)}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="${xmlEscape(name)}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+function contentTypesXml(imageCount){
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+}
+function rootRelsXml(){
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
+}
+function documentRelsXml(imageCount){
+  let rels = '';
+  for(let i=1;i<=imageCount;i++) rels += `<Relationship Id="rId${i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image${i}.png"/>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels}</Relationships>`;
+}
+function coreXml(){
+  const now = new Date().toISOString();
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>ネット掲載・複製許諾願い</dc:title><dc:creator>STL提出確認</dc:creator><cp:lastModifiedBy>STL提出確認</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`;
+}
+function appXml(){
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>STL提出確認</Application></Properties>`;
+}
+function documentXml(body){
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="720" w:footer="720" w:gutter="0"/><w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>`;
+}
+function makeConsentPageXml(rec, settings, rid, index){
+  const meta = `${rec.file.name}`;
+  const body2 = applyConsentTemplate(settings.body2, settings);
+  let xml = '';
+  const firstPageOpt = index > 0 ? {pageBreakBefore:true} : {};
+  xml += wPara(formatReiwaDate(settings.issueDate), {align:'right', size:21, after:100, ...firstPageOpt});
+  xml += wRecipientBlock(`${rec.grade}年${rec.klass}組${rec.no}番　${rec.name || '氏名'}　様`);
+  xml += wBlank();
+  xml += wBlank();
+  xml += wPara(settings.title, {align:'center', size:30, bold:true, after:220});
+  xml += wPara(`${settings.school}${settings.subject}　${settings.teacher}`, {align:'right', size:21, after:260});
+  xml += wPara(settings.body1, {size:21, after:120, firstLine:420});
+  xml += wPara(body2, {size:21, after:120, firstLine:420});
+  xml += wBlank();
+  xml += imageDrawing(rid, 2500000, 1900000, `STLサムネイル${index+1}`);
+  xml += wPara(meta, {align:'center', size:18, after:180});
+  xml += wBlank();
+  xml += wPermissionPara(settings.permissionText);
+  xml += wBlank();
+  xml += wChoiceTable();
+  xml += wBlank();
+  xml += wBlank();
+  xml += wSignaturePara('生徒氏名（署名）　　：');
+  xml += wBlank();
+  xml += wSignaturePara('保護者氏名（署名）　：');
+  xml += wBlank();
+  xml += wPara(`お手数ですが、${formatJapaneseDate(settings.deadline)}までに提出をお願いします。`, {size:21, align:'center', after:80});
+  return xml;
+}
+async function buildConsentDocx(records, settings, onProgress){
+  if(!window.JSZip) throw new Error('DOCX作成に必要なZIPライブラリを読み込めませんでした。');
+  const zip = new JSZip();
+  let body = '';
+  const imageBase64List = [];
+  for(let i=0; i<records.length; i++){
+    const rec = records[i];
+    const dataUrl = await renderSTLStillImage(rec.file, 720, 540);
+    const base64 = dataUrl.split(',')[1];
+    imageBase64List.push(base64);
+    body += makeConsentPageXml(rec, settings, `rId${i+1}`, i);
+    if(onProgress) onProgress(i+1);
+    await waitFrame();
+    await new Promise(resolve => setTimeout(resolve, 40));
+  }
+  zip.file('[Content_Types].xml', contentTypesXml(imageBase64List.length));
+  zip.folder('_rels').file('.rels', rootRelsXml());
+  zip.folder('docProps').file('core.xml', coreXml());
+  zip.folder('docProps').file('app.xml', appXml());
+  zip.folder('word').file('document.xml', documentXml(body));
+  zip.folder('word').folder('_rels').file('document.xml.rels', documentRelsXml(imageBase64List.length));
+  const media = zip.folder('word').folder('media');
+  imageBase64List.forEach((b64, i) => media.file(`image${i+1}.png`, b64, {base64:true}));
+  return await zip.generateAsync({type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+
 function attachSummaryButtons(){
   const classAllBtn = document.getElementById('classAllBtn');
   const submittersBtn = document.getElementById('submittersBtn');
@@ -932,6 +1357,7 @@ function attachSummaryButtons(){
   const unparsedBtn = document.getElementById('unparsedBtn');
   const unparsedPrintBtn = document.getElementById('unparsedPrintBtn');
   const starredBtn = document.getElementById('starredBtn');
+  const consentDocBtn = document.getElementById('consentDocBtn');
 
   if(classAllBtn) classAllBtn.addEventListener('click', () => showClassRecordsFromBadge('クラス全体のSTL'));
   if(submittersBtn) submittersBtn.addEventListener('click', () => showClassRecordsFromBadge('提出者のSTL'));
@@ -943,6 +1369,7 @@ function attachSummaryButtons(){
   if(unparsedBtn) unparsedBtn.addEventListener('click', showUnparsedSTLs);
   if(unparsedPrintBtn) unparsedPrintBtn.addEventListener('click', buildUnparsedThumbnailPrintView);
   if(starredBtn) starredBtn.addEventListener('click', showStarredSTLs);
+  if(consentDocBtn) consentDocBtn.addEventListener('click', openConsentDialog);
   updateStarredBadge();
 }
 
@@ -1699,16 +2126,16 @@ async function renderSTLStillImage(file, width=360, height=360){
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(reader.error || new Error('FileReader error'));
-    reader.onload = () => {
-      let renderer;
+    reader.onload = async () => {
+      let renderer, geometry, material;
       try{
         const loader = new STLLoader();
-        const geometry = loader.parse(reader.result);
+        geometry = loader.parse(reader.result);
         geometry.computeVertexNormals();
         geometry.computeBoundingBox();
         geometry.center();
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(36, width/height, 0.1, 100000);
+        const camera = new THREE.PerspectiveCamera(34, width/height, 0.1, 100000);
         renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, preserveDrawingBuffer:true});
         renderer.setPixelRatio(1);
         renderer.setSize(width, height, false);
@@ -1720,7 +2147,7 @@ async function renderSTLStillImage(file, width=360, height=360){
         const dir2 = new THREE.DirectionalLight(0xffffff, 1.1);
         dir2.position.set(-2, -1, -1);
         scene.add(dir2);
-        const material = new THREE.MeshStandardMaterial({color:0xd6dce6, metalness:0.08, roughness:0.58});
+        material = new THREE.MeshStandardMaterial({color:0xd6dce6, metalness:0.08, roughness:0.58});
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI/2;
         scene.add(mesh);
@@ -1728,7 +2155,7 @@ async function renderSTLStillImage(file, width=360, height=360){
         const size = new THREE.Vector3();
         box.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        const camDistance = maxDim * 2.0;
+        const camDistance = maxDim * 2.2;
         const camPos = new THREE.Vector3(1, 0.78, 1).normalize().multiplyScalar(camDistance);
         camera.position.copy(camPos);
         camera.near = Math.max(0.01, maxDim/1000);
@@ -1736,19 +2163,26 @@ async function renderSTLStillImage(file, width=360, height=360){
         camera.lookAt(0,0,0);
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        renderer.render(scene, camera);
         const url = renderer.domElement.toDataURL('image/png');
+        scene.remove(mesh);
         geometry.dispose();
         material.dispose();
         renderer.dispose();
+        if(renderer.forceContextLoss) renderer.forceContextLoss();
         resolve(url);
       }catch(e){
-        if(renderer) renderer.dispose();
+        try{ if(geometry) geometry.dispose(); }catch(_){}
+        try{ if(material) material.dispose(); }catch(_){}
+        try{ if(renderer){ renderer.dispose(); if(renderer.forceContextLoss) renderer.forceContextLoss(); } }catch(_){}
         reject(e);
       }
     };
     reader.readAsArrayBuffer(file);
   });
 }
+
 
 function parseFile(file){
   const base = file.name.replace(/\.stl$/i,'');
